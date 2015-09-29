@@ -62,8 +62,11 @@ u32 GlobalDebugLevel = _drv_err_;
 
 void dump_drv_version(void *sel)
 {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdate-time"
 	DBG_871X_SEL_NL(sel, "%s %s\n", DRV_NAME, DRIVERVERSION);
 	DBG_871X_SEL_NL(sel, "build time: %s %s\n", __DATE__, __TIME__);
+#pragma GCC diagnostic pop
 }
 
 void dump_log_level(void *sel)
