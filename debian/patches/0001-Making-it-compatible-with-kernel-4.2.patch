@@ -12,17 +12,17 @@ Signed-off-by: Ricardo Salveti de Araujo <rsalveti@rsalveti.net>
  core/rtw_sta_mgt.c            |  4 +--
  hal/hal_btcoex.c              |  6 ++--
  hal/hal_com.c                 |  4 +--
- hal/hal_com_phycfg.c          | 42 +++++++++++++-------------
+ hal/hal_com_phycfg.c          | 42 ++++++++++++-------------
  include/hal_com.h             |  2 +-
  include/osdep_service.h       |  4 +--
  include/sta_info.h            |  4 +--
  include/wifi.h                |  2 +-
- os_dep/linux/ioctl_cfg80211.c | 69 +++++++++++++++++++++++++++++++++++++++----
+ os_dep/linux/ioctl_cfg80211.c | 71 ++++++++++++++++++++++++++++++++++++++++---
  os_dep/linux/ioctl_cfg80211.h |  4 ++-
  os_dep/linux/rtw_android.c    |  4 +++
- os_dep/linux/rtw_cfgvendor.c  |  5 ++++
+ os_dep/linux/rtw_cfgvendor.c  |  5 +++
  os_dep/osdep_service.c        |  4 +--
- 13 files changed, 112 insertions(+), 42 deletions(-)
+ 13 files changed, 115 insertions(+), 41 deletions(-)
 
 diff --git a/core/rtw_sta_mgt.c b/core/rtw_sta_mgt.c
 index f17b2a2..687f637 100644
@@ -258,19 +258,22 @@ index dff95b4..d148ba8 100644
  	if ((*da) & 0x01)
  		return _TRUE;
 diff --git a/os_dep/linux/ioctl_cfg80211.c b/os_dep/linux/ioctl_cfg80211.c
-index 3826a52..1b1171d 100644
+index 3826a52..ab5fe0b 100644
 --- a/os_dep/linux/ioctl_cfg80211.c
 +++ b/os_dep/linux/ioctl_cfg80211.c
-@@ -897,7 +897,7 @@ void rtw_cfg80211_indicate_disconnect(_adapter *padapter)
+@@ -897,7 +897,11 @@ void rtw_cfg80211_indicate_disconnect(_adapter *padapter)
  		#else
  
  		if(check_fwstate(&padapter->mlmepriv, _FW_LINKED))		
--			cfg80211_disconnected(padapter->pnetdev, 0, NULL, 0, GFP_ATOMIC);
++		#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 2, 0)
+ 			cfg80211_disconnected(padapter->pnetdev, 0, NULL, 0, GFP_ATOMIC);
++		#else
 +			cfg80211_disconnected(padapter->pnetdev, 0, NULL, 0, false, GFP_ATOMIC);
++		#endif
  		else
  			cfg80211_connect_result(padapter->pnetdev, NULL, NULL, 0, NULL, 0, 
  				WLAN_STATUS_UNSPECIFIED_FAILURE, GFP_ATOMIC/*GFP_KERNEL*/);
-@@ -1712,7 +1712,12 @@ static int cfg80211_rtw_set_default_key(struct wiphy *wiphy,
+@@ -1712,7 +1716,12 @@ static int cfg80211_rtw_set_default_key(struct wiphy *wiphy,
  
  static int cfg80211_rtw_get_station(struct wiphy *wiphy,
  				    struct net_device *ndev,
@@ -284,7 +287,7 @@ index 3826a52..1b1171d 100644
  {
  	int ret = 0;
  	_adapter *padapter = (_adapter *)rtw_netdev_priv(ndev);
-@@ -1752,16 +1757,32 @@ static int cfg80211_rtw_get_station(struct wiphy *wiphy,
+@@ -1752,16 +1761,32 @@ static int cfg80211_rtw_get_station(struct wiphy *wiphy,
  			goto exit;
  		}
  
@@ -317,7 +320,7 @@ index 3826a52..1b1171d 100644
  		sinfo->tx_packets = psta->sta_stats.tx_pkts;
  
  	}
-@@ -3483,7 +3504,9 @@ void rtw_cfg80211_indicate_sta_assoc(_adapter *padapter, u8 *pmgmt_frame, uint f
+@@ -3483,7 +3508,9 @@ void rtw_cfg80211_indicate_sta_assoc(_adapter *padapter, u8 *pmgmt_frame, uint f
  			ie_offset = _REASOCREQ_IE_OFFSET_;
  	
  		sinfo.filled = 0;
@@ -327,7 +330,7 @@ index 3826a52..1b1171d 100644
  		sinfo.assoc_req_ies = pmgmt_frame + WLAN_HDR_A3_LEN + ie_offset;
  		sinfo.assoc_req_ies_len = frame_len - WLAN_HDR_A3_LEN - ie_offset;
  		cfg80211_new_sta(ndev, GetAddr2Ptr(pmgmt_frame), &sinfo, GFP_ATOMIC);
-@@ -3781,7 +3804,11 @@ static const struct net_device_ops rtw_cfg80211_monitor_if_ops = {
+@@ -3781,7 +3808,11 @@ static const struct net_device_ops rtw_cfg80211_monitor_if_ops = {
  };
  #endif
  
@@ -339,7 +342,7 @@ index 3826a52..1b1171d 100644
  {
  	int ret = 0;
  	struct net_device* mon_ndev = NULL;
-@@ -3812,6 +3839,9 @@ static int rtw_cfg80211_add_monitor_if(_adapter *padapter, char *name, struct ne
+@@ -3812,6 +3843,9 @@ static int rtw_cfg80211_add_monitor_if(_adapter *padapter, char *name, struct ne
  	mon_ndev->type = ARPHRD_IEEE80211_RADIOTAP;
  	strncpy(mon_ndev->name, name, IFNAMSIZ);
  	mon_ndev->name[IFNAMSIZ - 1] = 0;
@@ -349,7 +352,7 @@ index 3826a52..1b1171d 100644
  	mon_ndev->destructor = rtw_ndev_destructor;
  	
  #if (LINUX_VERSION_CODE>=KERNEL_VERSION(2,6,29))
-@@ -3876,6 +3906,9 @@ static int
+@@ -3876,6 +3910,9 @@ static int
  	#else
  		char *name,
  	#endif
@@ -359,7 +362,7 @@ index 3826a52..1b1171d 100644
  		enum nl80211_iftype type, u32 *flags, struct vif_params *params)
  {
  	int ret = 0;
-@@ -3893,7 +3926,11 @@ static int
+@@ -3893,7 +3930,11 @@ static int
  		ret = -ENODEV;
  		break;
  	case NL80211_IFTYPE_MONITOR:
@@ -371,7 +374,7 @@ index 3826a52..1b1171d 100644
  		break;
  
  #if (LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,37)) || defined(COMPAT_KERNEL_RELEASE)
-@@ -4158,7 +4195,12 @@ static int cfg80211_rtw_stop_ap(struct wiphy *wiphy, struct net_device *ndev)
+@@ -4158,7 +4199,12 @@ static int cfg80211_rtw_stop_ap(struct wiphy *wiphy, struct net_device *ndev)
  #endif //(LINUX_VERSION_CODE < KERNEL_VERSION(3,4,0))
  
  static int	cfg80211_rtw_add_station(struct wiphy *wiphy, struct net_device *ndev,
@@ -385,7 +388,7 @@ index 3826a52..1b1171d 100644
  {
  	DBG_871X(FUNC_NDEV_FMT"\n", FUNC_NDEV_ARG(ndev));
  	
-@@ -4166,7 +4208,12 @@ static int	cfg80211_rtw_add_station(struct wiphy *wiphy, struct net_device *ndev
+@@ -4166,7 +4212,12 @@ static int	cfg80211_rtw_add_station(struct wiphy *wiphy, struct net_device *ndev
  }
  
  static int	cfg80211_rtw_del_station(struct wiphy *wiphy, struct net_device *ndev,
@@ -399,7 +402,7 @@ index 3826a52..1b1171d 100644
  {
  	int ret=0;	
  	_irqL irqL;
-@@ -4176,6 +4223,9 @@ static int	cfg80211_rtw_del_station(struct wiphy *wiphy, struct net_device *ndev
+@@ -4176,6 +4227,9 @@ static int	cfg80211_rtw_del_station(struct wiphy *wiphy, struct net_device *ndev
  	_adapter *padapter = (_adapter *)rtw_netdev_priv(ndev);
  	struct mlme_priv *pmlmepriv = &(padapter->mlmepriv);
  	struct sta_priv *pstapriv = &padapter->stapriv;
@@ -409,7 +412,7 @@ index 3826a52..1b1171d 100644
  
  	DBG_871X("+"FUNC_NDEV_FMT"\n", FUNC_NDEV_ARG(ndev));
  
-@@ -4257,7 +4307,12 @@ static int	cfg80211_rtw_del_station(struct wiphy *wiphy, struct net_device *ndev
+@@ -4257,7 +4311,12 @@ static int	cfg80211_rtw_del_station(struct wiphy *wiphy, struct net_device *ndev
  }
  
  static int	cfg80211_rtw_change_station(struct wiphy *wiphy, struct net_device *ndev,
@@ -423,7 +426,7 @@ index 3826a52..1b1171d 100644
  {
  	DBG_871X(FUNC_NDEV_FMT"\n", FUNC_NDEV_ARG(ndev));
  	
-@@ -4306,7 +4361,11 @@ static int	cfg80211_rtw_dump_station(struct wiphy *wiphy, struct net_device *nde
+@@ -4306,7 +4365,11 @@ static int	cfg80211_rtw_dump_station(struct wiphy *wiphy, struct net_device *nde
  	}
  	_rtw_memcpy(mac, psta->hwaddr, ETH_ALEN);
  	sinfo->filled = 0;
