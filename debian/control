@@ -5,6 +5,8 @@ Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
 Build-Depends: debhelper (>= 9), dkms, dh-modaliases
 Standards-Version: 3.9.6
 Homepage: http://www.realtek.com.tw/
+Vcs-Git: https://github.com/rsalveti/rtl8812au.git
+Vcs-Browser: https://github.com/rsalveti/rtl8812au
 
 Package: rtl8812au-dkms
 Architecture: all
