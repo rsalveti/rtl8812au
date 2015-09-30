@@ -1,7 +1,6 @@
-From 215333ad7371719c6e5f16775afb7046f9e113da Mon Sep 17 00:00:00 2001
 From: Ricardo Salveti de Araujo <rsalveti@rsalveti.net>
 Date: Wed, 30 Sep 2015 00:11:35 -0300
-Subject: [PATCH 5/6] autoconf.h: disabling debug
+Subject: autoconf.h: disabling debug
 
 Signed-off-by: Ricardo Salveti de Araujo <rsalveti@rsalveti.net>
 ---
@@ -31,6 +30,3 @@ index d36a250..ff54aaa 100755
  //#define DBG_CONFIG_ERROR_DETECT_INT
  //#define DBG_CONFIG_ERROR_RESET
  
--- 
-2.5.0
-

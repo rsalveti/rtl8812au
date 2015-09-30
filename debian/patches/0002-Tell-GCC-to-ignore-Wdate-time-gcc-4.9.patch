@@ -1,7 +1,6 @@
-From 74089da56833655caea840b21b899b6b58dddd72 Mon Sep 17 00:00:00 2001
 From: Ricardo Salveti de Araujo <rsalveti@rsalveti.net>
 Date: Tue, 29 Sep 2015 19:39:32 -0300
-Subject: [PATCH 2/6] Tell GCC to ignore -Wdate-time (gcc 4.9)
+Subject: Tell GCC to ignore -Wdate-time (gcc 4.9)
 
 Signed-off-by: Ricardo Salveti de Araujo <rsalveti@rsalveti.net>
 ---
@@ -24,6 +23,3 @@ index af9303c..3555c10 100644
  }
  
  void dump_log_level(void *sel)
--- 
-2.5.0
-

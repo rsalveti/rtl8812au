@@ -1,9 +1,8 @@
-From a751d3dcb5eb87ab9069d09d6fe33ff4d26d5919 Mon Sep 17 00:00:00 2001
 From: Ricardo Salveti de Araujo <rsalveti@rsalveti.net>
 Date: Tue, 29 Sep 2015 19:33:01 -0300
-Subject: [PATCH 1/6] Making it compatible with kernel 4.2+
+Subject: Making it compatible with kernel 4.2+
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
 
 Based on a patch done by Jan Rękorajski <baggins@pld-linux.org>
@@ -508,6 +507,3 @@ index dcef0e7..ca17ec9 100644
  {
  
  #if defined (PLATFORM_LINUX)|| defined (PLATFORM_FREEBSD)
--- 
-2.5.0
-

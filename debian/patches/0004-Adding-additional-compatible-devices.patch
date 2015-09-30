@@ -1,7 +1,6 @@
-From 199dae7b27c0967c32ea4bb0abd759c8837c300c Mon Sep 17 00:00:00 2001
 From: Ricardo Salveti de Araujo <rsalveti@rsalveti.net>
 Date: Tue, 29 Sep 2015 23:50:52 -0300
-Subject: [PATCH 4/6] Adding additional compatible devices
+Subject: Adding additional compatible devices
 
 Signed-off-by: Ricardo Salveti de Araujo <rsalveti@rsalveti.net>
 ---
@@ -27,6 +26,3 @@ index 1a9fe9e..91d649f 100644
  #endif
  
  #ifdef CONFIG_RTL8821A
--- 
-2.5.0
-
