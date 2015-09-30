@@ -1,5 +1,5 @@
-rtl8812au (4.3.8.12175.20140902-0ubuntu1) UNRELEASED; urgency=medium
+rtl8812au (4.3.8.12175.20140902-0ubuntu1) wily; urgency=medium
 
-  * Initial release
+  * Initial release (LP: #1501194)
 
  -- Ricardo Salveti de Araujo <rsalveti@rsalveti.net>  Wed, 30 Sep 2015 00:30:45 -0300
