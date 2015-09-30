@@ -4,14 +4,14 @@ Subject: Adding additional compatible devices
 
 Signed-off-by: Ricardo Salveti de Araujo <rsalveti@rsalveti.net>
 ---
- os_dep/linux/usb_intf.c | 3 +++
- 1 file changed, 3 insertions(+)
+ os_dep/linux/usb_intf.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
 diff --git a/os_dep/linux/usb_intf.c b/os_dep/linux/usb_intf.c
-index 1a9fe9e..91d649f 100644
+index 1a9fe9e..d3655c9 100644
 --- a/os_dep/linux/usb_intf.c
 +++ b/os_dep/linux/usb_intf.c
-@@ -292,11 +292,14 @@ static struct usb_device_id rtw_usb_id_tbl[] ={
+@@ -292,11 +292,15 @@ static struct usb_device_id rtw_usb_id_tbl[] ={
  	{USB_DEVICE(0x0586, 0x3426),.driver_info = RTL8812}, /* ZyXEL - */
  	{USB_DEVICE(0x2001, 0x3313),.driver_info = RTL8812}, /* D-Link - ALPHA */
  	{USB_DEVICE(0x1058, 0x0632),.driver_info = RTL8812}, /* WD - Cybertan*/
@@ -23,6 +23,7 @@ index 1a9fe9e..91d649f 100644
  	{USB_DEVICE(0x2001, 0x3316),.driver_info = RTL8812}, /* D-Link - Cameo */
 +	{USB_DEVICE(0x20f4, 0x805b),.driver_info = RTL8812}, /* TRENDnet - */
 +	{USB_DEVICE(0x2357, 0x0101),.driver_info = RTL8812}, /* TP-Link - Archer T4U */
++	{USB_DEVICE(0x2357, 0x0103),.driver_info = RTL8812}, /* TP-Link - Archer T4UH */
  #endif
  
  #ifdef CONFIG_RTL8821A
