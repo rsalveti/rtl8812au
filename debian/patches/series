@@ -1,0 +1,6 @@
+0001-Making-it-compatible-with-kernel-4.2.patch
+0002-Tell-GCC-to-ignore-Wdate-time-gcc-4.9.patch
+0003-autoconf.h-enable-ioctl_cfg80211.patch
+0004-Adding-additional-compatible-devices.patch
+0005-autoconf.h-disabling-debug.patch
+0006-Disabling-power-saving-for-better-performance.patch

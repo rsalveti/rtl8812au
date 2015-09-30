@@ -1,0 +1,36 @@
+From 215333ad7371719c6e5f16775afb7046f9e113da Mon Sep 17 00:00:00 2001
+From: Ricardo Salveti de Araujo <rsalveti@rsalveti.net>
+Date: Wed, 30 Sep 2015 00:11:35 -0300
+Subject: [PATCH 5/6] autoconf.h: disabling debug
+
+Signed-off-by: Ricardo Salveti de Araujo <rsalveti@rsalveti.net>
+---
+ include/autoconf.h | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/include/autoconf.h b/include/autoconf.h
+index d36a250..ff54aaa 100755
+--- a/include/autoconf.h
++++ b/include/autoconf.h
+@@ -364,14 +364,14 @@
+ /*
+  * Debug Related Config
+  */
+-#define DBG	1
++#define DBG	0
+ 
+-#define CONFIG_DEBUG /* DBG_871X, etc... */
++//#define CONFIG_DEBUG /* DBG_871X, etc... */
+ //#define CONFIG_DEBUG_RTL871X /* RT_TRACE, RT_PRINT_DATA, _func_enter_, _func_exit_ */
+ 
+-#define CONFIG_PROC_DEBUG
++//#define CONFIG_PROC_DEBUG
+ 
+-#define DBG_CONFIG_ERROR_DETECT
++//#define DBG_CONFIG_ERROR_DETECT
+ //#define DBG_CONFIG_ERROR_DETECT_INT
+ //#define DBG_CONFIG_ERROR_RESET
+ 
+-- 
+2.5.0
+

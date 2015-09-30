@@ -1,0 +1,26 @@
+From a75b53c78164ce585b4060c62b394f19866d8ad5 Mon Sep 17 00:00:00 2001
+From: Ricardo Salveti de Araujo <rsalveti@rsalveti.net>
+Date: Wed, 30 Sep 2015 00:12:37 -0300
+Subject: [PATCH 6/6] Disabling power saving for better performance
+
+Signed-off-by: Ricardo Salveti de Araujo <rsalveti@rsalveti.net>
+---
+ Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/Makefile b/Makefile
+index c707662..449f0ce 100755
+--- a/Makefile
++++ b/Makefile
+@@ -39,7 +39,7 @@ CONFIG_SDIO_HCI = n
+ CONFIG_GSPI_HCI = n
+ ########################## Features ###########################
+ CONFIG_MP_INCLUDED = y
+-CONFIG_POWER_SAVING = y
++CONFIG_POWER_SAVING = n
+ CONFIG_USB_AUTOSUSPEND = n
+ CONFIG_HW_PWRP_DETECTION = n
+ CONFIG_WIFI_TEST = n
+-- 
+2.5.0
+

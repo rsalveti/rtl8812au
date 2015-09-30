@@ -1,0 +1,32 @@
+From 199dae7b27c0967c32ea4bb0abd759c8837c300c Mon Sep 17 00:00:00 2001
+From: Ricardo Salveti de Araujo <rsalveti@rsalveti.net>
+Date: Tue, 29 Sep 2015 23:50:52 -0300
+Subject: [PATCH 4/6] Adding additional compatible devices
+
+Signed-off-by: Ricardo Salveti de Araujo <rsalveti@rsalveti.net>
+---
+ os_dep/linux/usb_intf.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/os_dep/linux/usb_intf.c b/os_dep/linux/usb_intf.c
+index 1a9fe9e..91d649f 100644
+--- a/os_dep/linux/usb_intf.c
++++ b/os_dep/linux/usb_intf.c
+@@ -292,11 +292,14 @@ static struct usb_device_id rtw_usb_id_tbl[] ={
+ 	{USB_DEVICE(0x0586, 0x3426),.driver_info = RTL8812}, /* ZyXEL - */
+ 	{USB_DEVICE(0x2001, 0x3313),.driver_info = RTL8812}, /* D-Link - ALPHA */
+ 	{USB_DEVICE(0x1058, 0x0632),.driver_info = RTL8812}, /* WD - Cybertan*/
++	{USB_DEVICE(0x13b1, 0x003f),.driver_info = RTL8812}, /* Linksys WUSB6300 */
+ 	{USB_DEVICE(0x1740, 0x0100),.driver_info = RTL8812}, /* EnGenius - EnGenius */
+ 	{USB_DEVICE(0x2019, 0xAB30),.driver_info = RTL8812}, /* Planex - Abocom */
+ 	{USB_DEVICE(0x07B8, 0x8812),.driver_info = RTL8812}, /* Abocom - Abocom */
+ 	{USB_DEVICE(0x2001, 0x3315),.driver_info = RTL8812}, /* D-Link - Cameo */
+ 	{USB_DEVICE(0x2001, 0x3316),.driver_info = RTL8812}, /* D-Link - Cameo */
++	{USB_DEVICE(0x20f4, 0x805b),.driver_info = RTL8812}, /* TRENDnet - */
++	{USB_DEVICE(0x2357, 0x0101),.driver_info = RTL8812}, /* TP-Link - Archer T4U */
+ #endif
+ 
+ #ifdef CONFIG_RTL8821A
+-- 
+2.5.0
+

@@ -1,0 +1,18 @@
+Source: rtl8812au
+Section: kernel
+Priority: optional
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Build-Depends: debhelper (>= 9), dkms, dh-modaliases
+Standards-Version: 3.9.6
+Homepage: http://www.realtek.com.tw/
+
+Package: rtl8812au-dkms
+Architecture: all
+Depends: ${misc:Depends}, dkms, linux-libc-dev, libc6-dev
+XB-Modaliases: ${modaliases}
+Description: dkms source for the r8812au network driver
+ rtl8812au is the Linux device driver released for the RealTek RTL8812AU WiFi
+ controllers with USB interface.
+ .
+ This package provides the dkms source code for the rtl8812au kernel module.
+ Kernel source or headers are required to compile these modules.

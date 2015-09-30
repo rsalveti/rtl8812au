@@ -1,0 +1,513 @@
+From a751d3dcb5eb87ab9069d09d6fe33ff4d26d5919 Mon Sep 17 00:00:00 2001
+From: Ricardo Salveti de Araujo <rsalveti@rsalveti.net>
+Date: Tue, 29 Sep 2015 19:33:01 -0300
+Subject: [PATCH 1/6] Making it compatible with kernel 4.2+
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Based on a patch done by Jan Rękorajski <baggins@pld-linux.org>
+
+Signed-off-by: Ricardo Salveti de Araujo <rsalveti@rsalveti.net>
+---
+ core/rtw_sta_mgt.c            |  4 +--
+ hal/hal_btcoex.c              |  6 ++--
+ hal/hal_com.c                 |  4 +--
+ hal/hal_com_phycfg.c          | 42 +++++++++++++-------------
+ include/hal_com.h             |  2 +-
+ include/osdep_service.h       |  4 +--
+ include/sta_info.h            |  4 +--
+ include/wifi.h                |  2 +-
+ os_dep/linux/ioctl_cfg80211.c | 69 +++++++++++++++++++++++++++++++++++++++----
+ os_dep/linux/ioctl_cfg80211.h |  4 ++-
+ os_dep/linux/rtw_android.c    |  4 +++
+ os_dep/linux/rtw_cfgvendor.c  |  5 ++++
+ os_dep/osdep_service.c        |  4 +--
+ 13 files changed, 112 insertions(+), 42 deletions(-)
+
+diff --git a/core/rtw_sta_mgt.c b/core/rtw_sta_mgt.c
+index f17b2a2..687f637 100644
+--- a/core/rtw_sta_mgt.c
++++ b/core/rtw_sta_mgt.c
+@@ -712,7 +712,7 @@ _func_exit_;
+ }
+ 
+ /* any station allocated can be searched by hash list */
+-struct sta_info *rtw_get_stainfo(struct sta_priv *pstapriv, u8 *hwaddr)
++struct sta_info *rtw_get_stainfo(struct sta_priv *pstapriv, const u8 *hwaddr)
+ {
+ 
+ 	_irqL	 irqL;
+@@ -723,7 +723,7 @@ struct sta_info *rtw_get_stainfo(struct sta_priv *pstapriv, u8 *hwaddr)
+ 	
+ 	u32	index;
+ 
+-	u8 *addr;
++	const u8 *addr;
+ 
+ 	u8 bc_addr[ETH_ALEN] = {0xff,0xff,0xff,0xff,0xff,0xff};
+ 
+diff --git a/hal/hal_btcoex.c b/hal/hal_btcoex.c
+index 211ba42..3303c96 100644
+--- a/hal/hal_btcoex.c
++++ b/hal/hal_btcoex.c
+@@ -3334,11 +3334,11 @@ hal_btcoex_AntIsolationConfig_ParaFile(
+ 	_rtw_memset(pHalData->para_file_buf, 0, MAX_PARA_FILE_BUF_LEN);
+ 
+ 
+-	rtw_merge_string(file_path, PATH_LENGTH_MAX, rtw_phy_file_path, pFileName);
++	rtw_merge_string(rtw_file_path, PATH_LENGTH_MAX, rtw_phy_file_path, pFileName);
+ 
+-	if (rtw_is_file_readable(file_path) == _TRUE)
++	if (rtw_is_file_readable(rtw_file_path) == _TRUE)
+ 	{
+-		rlen = rtw_retrive_from_file(file_path, pHalData->para_file_buf, MAX_PARA_FILE_BUF_LEN);
++		rlen = rtw_retrive_from_file(rtw_file_path, pHalData->para_file_buf, MAX_PARA_FILE_BUF_LEN);
+ 		if (rlen > 0)
+ 		{
+ 			rtStatus = _SUCCESS;
+diff --git a/hal/hal_com.c b/hal/hal_com.c
+index 2b7a30f..383dec1 100644
+--- a/hal/hal_com.c
++++ b/hal/hal_com.c
+@@ -25,7 +25,7 @@
+ #include "hal_data.h"
+ 
+ #ifdef CONFIG_LOAD_PHY_PARA_FROM_FILE
+-char	file_path[PATH_LENGTH_MAX];
++char	rtw_file_path[PATH_LENGTH_MAX];
+ #endif
+ 
+ u8 rtw_hal_data_init(_adapter *padapter)
+@@ -2444,4 +2444,4 @@ int rtw_hal_config_gpio(_adapter* adapter, u8 gpio_num, BOOLEAN isOutput)
+ 	return 0;
+ }
+ 
+-#endif
+\ No newline at end of file
++#endif
+diff --git a/hal/hal_com_phycfg.c b/hal/hal_com_phycfg.c
+index 4866324..2144c7b 100644
+--- a/hal/hal_com_phycfg.c
++++ b/hal/hal_com_phycfg.c
+@@ -2597,11 +2597,11 @@ phy_ConfigMACWithParaFile(
+ 
+ 	if ((pHalData->mac_reg_len == 0) && (pHalData->mac_reg == NULL))
+ 	{
+-		rtw_merge_string(file_path, PATH_LENGTH_MAX, rtw_phy_file_path, pFileName);
++		rtw_merge_string(rtw_file_path, PATH_LENGTH_MAX, rtw_phy_file_path, pFileName);
+ 	
+-		if (rtw_is_file_readable(file_path) == _TRUE)
++		if (rtw_is_file_readable(rtw_file_path) == _TRUE)
+ 		{
+-			rlen = rtw_retrive_from_file(file_path, pHalData->para_file_buf, MAX_PARA_FILE_BUF_LEN);
++			rlen = rtw_retrive_from_file(rtw_file_path, pHalData->para_file_buf, MAX_PARA_FILE_BUF_LEN);
+ 			if (rlen > 0)
+ 			{
+ 				rtStatus = _SUCCESS;
+@@ -2696,11 +2696,11 @@ phy_ConfigBBWithParaFile(
+ 
+ 	if ((pBufLen != NULL) && (*pBufLen == 0) && (pBuf == NULL))
+ 	{
+-		rtw_merge_string(file_path, PATH_LENGTH_MAX, rtw_phy_file_path, pFileName);
++		rtw_merge_string(rtw_file_path, PATH_LENGTH_MAX, rtw_phy_file_path, pFileName);
+ 	
+-		if (rtw_is_file_readable(file_path) == _TRUE)
++		if (rtw_is_file_readable(rtw_file_path) == _TRUE)
+ 		{
+-			rlen = rtw_retrive_from_file(file_path, pHalData->para_file_buf, MAX_PARA_FILE_BUF_LEN);
++			rlen = rtw_retrive_from_file(rtw_file_path, pHalData->para_file_buf, MAX_PARA_FILE_BUF_LEN);
+ 			if (rlen > 0)
+ 			{
+ 				rtStatus = _SUCCESS;
+@@ -3149,11 +3149,11 @@ phy_ConfigBBWithPgParaFile(
+ 
+ 	if ((pHalData->bb_phy_reg_pg_len == 0) && (pHalData->bb_phy_reg_pg == NULL))
+ 	{
+-		rtw_merge_string(file_path, PATH_LENGTH_MAX, rtw_phy_file_path, pFileName);
++		rtw_merge_string(rtw_file_path, PATH_LENGTH_MAX, rtw_phy_file_path, pFileName);
+ 	
+-		if (rtw_is_file_readable(file_path) == _TRUE)
++		if (rtw_is_file_readable(rtw_file_path) == _TRUE)
+ 		{
+-			rlen = rtw_retrive_from_file(file_path, pHalData->para_file_buf, MAX_PARA_FILE_BUF_LEN);
++			rlen = rtw_retrive_from_file(rtw_file_path, pHalData->para_file_buf, MAX_PARA_FILE_BUF_LEN);
+ 			if (rlen > 0)
+ 			{
+ 				rtStatus = _SUCCESS;
+@@ -3212,11 +3212,11 @@ phy_ConfigBBWithMpParaFile(
+ 
+ 	if ((pHalData->bb_phy_reg_mp_len == 0) && (pHalData->bb_phy_reg_mp == NULL))
+ 	{
+-		rtw_merge_string(file_path, PATH_LENGTH_MAX, rtw_phy_file_path, pFileName);
++		rtw_merge_string(rtw_file_path, PATH_LENGTH_MAX, rtw_phy_file_path, pFileName);
+ 	
+-		if (rtw_is_file_readable(file_path) == _TRUE)
++		if (rtw_is_file_readable(rtw_file_path) == _TRUE)
+ 		{
+-			rlen = rtw_retrive_from_file(file_path, pHalData->para_file_buf, MAX_PARA_FILE_BUF_LEN);
++			rlen = rtw_retrive_from_file(rtw_file_path, pHalData->para_file_buf, MAX_PARA_FILE_BUF_LEN);
+ 			if (rlen > 0)
+ 			{
+ 				rtStatus = _SUCCESS;
+@@ -3348,11 +3348,11 @@ PHY_ConfigRFWithParaFile(
+ 
+ 	if ((pBufLen != NULL) && (*pBufLen == 0) && (pBuf == NULL))
+ 	{
+-		rtw_merge_string(file_path, PATH_LENGTH_MAX, rtw_phy_file_path, pFileName);
++		rtw_merge_string(rtw_file_path, PATH_LENGTH_MAX, rtw_phy_file_path, pFileName);
+ 
+-		if (rtw_is_file_readable(file_path) == _TRUE)
++		if (rtw_is_file_readable(rtw_file_path) == _TRUE)
+ 		{
+-			rlen = rtw_retrive_from_file(file_path, pHalData->para_file_buf, MAX_PARA_FILE_BUF_LEN);
++			rlen = rtw_retrive_from_file(rtw_file_path, pHalData->para_file_buf, MAX_PARA_FILE_BUF_LEN);
+ 			if (rlen > 0)
+ 			{
+ 				rtStatus = _SUCCESS;
+@@ -3626,11 +3626,11 @@ PHY_ConfigRFWithTxPwrTrackParaFile(
+ 
+ 	if ((pHalData->rf_tx_pwr_track_len == 0) && (pHalData->rf_tx_pwr_track == NULL))
+ 	{
+-		rtw_merge_string(file_path, PATH_LENGTH_MAX, rtw_phy_file_path, pFileName);
++		rtw_merge_string(rtw_file_path, PATH_LENGTH_MAX, rtw_phy_file_path, pFileName);
+ 	
+-		if (rtw_is_file_readable(file_path) == _TRUE)
++		if (rtw_is_file_readable(rtw_file_path) == _TRUE)
+ 		{
+-			rlen = rtw_retrive_from_file(file_path, pHalData->para_file_buf, MAX_PARA_FILE_BUF_LEN);
++			rlen = rtw_retrive_from_file(rtw_file_path, pHalData->para_file_buf, MAX_PARA_FILE_BUF_LEN);
+ 			if (rlen > 0)
+ 			{
+ 				rtStatus = _SUCCESS;
+@@ -3995,11 +3995,11 @@ PHY_ConfigRFWithPowerLimitTableParaFile(
+ 
+ 	if ((pHalData->rf_tx_pwr_lmt_len == 0) && (pHalData->rf_tx_pwr_lmt == NULL))
+ 	{
+-		rtw_merge_string(file_path, PATH_LENGTH_MAX, rtw_phy_file_path, pFileName);
++		rtw_merge_string(rtw_file_path, PATH_LENGTH_MAX, rtw_phy_file_path, pFileName);
+ 	
+-		if (rtw_is_file_readable(file_path) == _TRUE)
++		if (rtw_is_file_readable(rtw_file_path) == _TRUE)
+ 		{
+-			rlen = rtw_retrive_from_file(file_path, pHalData->para_file_buf, MAX_PARA_FILE_BUF_LEN);
++			rlen = rtw_retrive_from_file(rtw_file_path, pHalData->para_file_buf, MAX_PARA_FILE_BUF_LEN);
+ 			if (rlen > 0)
+ 			{
+ 				rtStatus = _SUCCESS;
+diff --git a/include/hal_com.h b/include/hal_com.h
+index e3d9469..3d73e2e 100644
+--- a/include/hal_com.h
++++ b/include/hal_com.h
+@@ -381,7 +381,7 @@ int rtw_hal_config_gpio(_adapter* adapter, u8 gpio_num, BOOLEAN isOutput);
+ 
+ #ifdef CONFIG_LOAD_PHY_PARA_FROM_FILE
+ extern char *rtw_phy_file_path;
+-extern char file_path[PATH_LENGTH_MAX];
++extern char rtw_file_path[PATH_LENGTH_MAX];
+ #define GetLineFromBuffer(buffer)   strsep(&buffer, "\n")
+ #endif
+ 
+diff --git a/include/osdep_service.h b/include/osdep_service.h
+index b590176..7c6c0ac 100644
+--- a/include/osdep_service.h
++++ b/include/osdep_service.h
+@@ -256,8 +256,8 @@ void _rtw_usb_buffer_free(struct usb_device *dev, size_t size, void *addr, dma_a
+ extern void*	rtw_malloc2d(int h, int w, size_t size);
+ extern void	rtw_mfree2d(void *pbuf, int h, int w, int size);
+ 
+-extern void	_rtw_memcpy(void* dec, void* sour, u32 sz);
+-extern int	_rtw_memcmp(void *dst, void *src, u32 sz);
++extern void	_rtw_memcpy(void* dec, const void* sour, u32 sz);
++extern int	_rtw_memcmp(const void *dst, const void *src, u32 sz);
+ extern void	_rtw_memset(void *pbuf, int c, u32 sz);
+ 
+ extern void	_rtw_init_listhead(_list *list);
+diff --git a/include/sta_info.h b/include/sta_info.h
+index 15964d7..553d5ab 100644
+--- a/include/sta_info.h
++++ b/include/sta_info.h
+@@ -443,7 +443,7 @@ struct	sta_priv {
+ };
+ 
+ 
+-__inline static u32 wifi_mac_hash(u8 *mac)
++__inline static u32 wifi_mac_hash(const u8 *mac)
+ {
+         u32 x;
+ 
+@@ -471,7 +471,7 @@ struct sta_info *rtw_get_stainfo_by_offset(struct sta_priv *stapriv, int offset)
+ extern struct sta_info *rtw_alloc_stainfo(struct	sta_priv *pstapriv, u8 *hwaddr);
+ extern u32	rtw_free_stainfo(_adapter *padapter , struct sta_info *psta);
+ extern void rtw_free_all_stainfo(_adapter *padapter);
+-extern struct sta_info *rtw_get_stainfo(struct sta_priv *pstapriv, u8 *hwaddr);
++extern struct sta_info *rtw_get_stainfo(struct sta_priv *pstapriv, const u8 *hwaddr);
+ extern u32 rtw_init_bcmc_stainfo(_adapter* padapter);
+ extern struct sta_info* rtw_get_bcmc_stainfo(_adapter* padapter);
+ extern u8 rtw_access_ctrl(_adapter *padapter, u8 *mac_addr);
+diff --git a/include/wifi.h b/include/wifi.h
+index dff95b4..d148ba8 100644
+--- a/include/wifi.h
++++ b/include/wifi.h
+@@ -431,7 +431,7 @@ enum WIFI_REG_DOMAIN {
+ 		(addr[4] == 0xff) && (addr[5] == 0xff) )  ? _TRUE : _FALSE \
+ )
+ 
+-__inline static int IS_MCAST(unsigned char *da)
++__inline static int IS_MCAST(const unsigned char *da)
+ {
+ 	if ((*da) & 0x01)
+ 		return _TRUE;
+diff --git a/os_dep/linux/ioctl_cfg80211.c b/os_dep/linux/ioctl_cfg80211.c
+index 3826a52..1b1171d 100644
+--- a/os_dep/linux/ioctl_cfg80211.c
++++ b/os_dep/linux/ioctl_cfg80211.c
+@@ -897,7 +897,7 @@ void rtw_cfg80211_indicate_disconnect(_adapter *padapter)
+ 		#else
+ 
+ 		if(check_fwstate(&padapter->mlmepriv, _FW_LINKED))		
+-			cfg80211_disconnected(padapter->pnetdev, 0, NULL, 0, GFP_ATOMIC);
++			cfg80211_disconnected(padapter->pnetdev, 0, NULL, 0, false, GFP_ATOMIC);
+ 		else
+ 			cfg80211_connect_result(padapter->pnetdev, NULL, NULL, 0, NULL, 0, 
+ 				WLAN_STATUS_UNSPECIFIED_FAILURE, GFP_ATOMIC/*GFP_KERNEL*/);
+@@ -1712,7 +1712,12 @@ static int cfg80211_rtw_set_default_key(struct wiphy *wiphy,
+ 
+ static int cfg80211_rtw_get_station(struct wiphy *wiphy,
+ 				    struct net_device *ndev,
+-				    u8 *mac, struct station_info *sinfo)
++#if (LINUX_VERSION_CODE < KERNEL_VERSION(3,16,0))
++				    u8 *mac,
++#else
++				    const u8 *mac,
++#endif
++				    struct station_info *sinfo)
+ {
+ 	int ret = 0;
+ 	_adapter *padapter = (_adapter *)rtw_netdev_priv(ndev);
+@@ -1752,16 +1757,32 @@ static int cfg80211_rtw_get_station(struct wiphy *wiphy,
+ 			goto exit;
+ 		}
+ 
++#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4,0,0))
++		sinfo->filled |= BIT(NL80211_STA_INFO_SIGNAL);
++#else
+ 		sinfo->filled |= STATION_INFO_SIGNAL;
++#endif
+ 		sinfo->signal = translate_percentage_to_dbm(padapter->recvpriv.signal_strength);
+ 
++#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4,0,0))
++		sinfo->filled |= BIT(NL80211_STA_INFO_TX_BITRATE);
++#else
+ 		sinfo->filled |= STATION_INFO_TX_BITRATE;
++#endif
+ 		sinfo->txrate.legacy = rtw_get_cur_max_rate(padapter);
+ 
++#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4,0,0))
++		sinfo->filled |= BIT(NL80211_STA_INFO_RX_PACKETS);
++#else
+ 		sinfo->filled |= STATION_INFO_RX_PACKETS;
++#endif
+ 		sinfo->rx_packets = sta_rx_data_pkts(psta);
+ 
++#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4,0,0))
++		sinfo->filled |= BIT(NL80211_STA_INFO_TX_PACKETS);
++#else
+ 		sinfo->filled |= STATION_INFO_TX_PACKETS;
++#endif
+ 		sinfo->tx_packets = psta->sta_stats.tx_pkts;
+ 
+ 	}
+@@ -3483,7 +3504,9 @@ void rtw_cfg80211_indicate_sta_assoc(_adapter *padapter, u8 *pmgmt_frame, uint f
+ 			ie_offset = _REASOCREQ_IE_OFFSET_;
+ 	
+ 		sinfo.filled = 0;
++#if (LINUX_VERSION_CODE < KERNEL_VERSION(4,0,0))
+ 		sinfo.filled = STATION_INFO_ASSOC_REQ_IES;
++#endif
+ 		sinfo.assoc_req_ies = pmgmt_frame + WLAN_HDR_A3_LEN + ie_offset;
+ 		sinfo.assoc_req_ies_len = frame_len - WLAN_HDR_A3_LEN - ie_offset;
+ 		cfg80211_new_sta(ndev, GetAddr2Ptr(pmgmt_frame), &sinfo, GFP_ATOMIC);
+@@ -3781,7 +3804,11 @@ static const struct net_device_ops rtw_cfg80211_monitor_if_ops = {
+ };
+ #endif
+ 
++#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4,1,0))
++static int rtw_cfg80211_add_monitor_if(_adapter *padapter, char *name, unsigned char name_assign_type, struct net_device **ndev)
++#else
+ static int rtw_cfg80211_add_monitor_if(_adapter *padapter, char *name, struct net_device **ndev)
++#endif
+ {
+ 	int ret = 0;
+ 	struct net_device* mon_ndev = NULL;
+@@ -3812,6 +3839,9 @@ static int rtw_cfg80211_add_monitor_if(_adapter *padapter, char *name, struct ne
+ 	mon_ndev->type = ARPHRD_IEEE80211_RADIOTAP;
+ 	strncpy(mon_ndev->name, name, IFNAMSIZ);
+ 	mon_ndev->name[IFNAMSIZ - 1] = 0;
++#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4,1,0))
++	mon_ndev->name_assign_type = name_assign_type;
++#endif
+ 	mon_ndev->destructor = rtw_ndev_destructor;
+ 	
+ #if (LINUX_VERSION_CODE>=KERNEL_VERSION(2,6,29))
+@@ -3876,6 +3906,9 @@ static int
+ 	#else
+ 		char *name,
+ 	#endif
++	#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4,1,0))
++		unsigned char name_assign_type,
++	#endif
+ 		enum nl80211_iftype type, u32 *flags, struct vif_params *params)
+ {
+ 	int ret = 0;
+@@ -3893,7 +3926,11 @@ static int
+ 		ret = -ENODEV;
+ 		break;
+ 	case NL80211_IFTYPE_MONITOR:
++#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4,1,0))
++		ret = rtw_cfg80211_add_monitor_if(padapter, (char *)name, name_assign_type, &ndev);
++#else
+ 		ret = rtw_cfg80211_add_monitor_if(padapter, (char *)name, &ndev);
++#endif
+ 		break;
+ 
+ #if (LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,37)) || defined(COMPAT_KERNEL_RELEASE)
+@@ -4158,7 +4195,12 @@ static int cfg80211_rtw_stop_ap(struct wiphy *wiphy, struct net_device *ndev)
+ #endif //(LINUX_VERSION_CODE < KERNEL_VERSION(3,4,0))
+ 
+ static int	cfg80211_rtw_add_station(struct wiphy *wiphy, struct net_device *ndev,
+-			       u8 *mac, struct station_parameters *params)
++#if (LINUX_VERSION_CODE < KERNEL_VERSION(3,16,0))
++			       u8 *mac,
++#else
++			       const u8 *mac,
++#endif
++			       struct station_parameters *params)
+ {
+ 	DBG_871X(FUNC_NDEV_FMT"\n", FUNC_NDEV_ARG(ndev));
+ 	
+@@ -4166,7 +4208,12 @@ static int	cfg80211_rtw_add_station(struct wiphy *wiphy, struct net_device *ndev
+ }
+ 
+ static int	cfg80211_rtw_del_station(struct wiphy *wiphy, struct net_device *ndev,
+-			       u8 *mac)
++#if (LINUX_VERSION_CODE < KERNEL_VERSION(3,19,0))
++			       u8 *mac
++#else
++			       struct station_del_parameters *params
++#endif
++			       )
+ {
+ 	int ret=0;	
+ 	_irqL irqL;
+@@ -4176,6 +4223,9 @@ static int	cfg80211_rtw_del_station(struct wiphy *wiphy, struct net_device *ndev
+ 	_adapter *padapter = (_adapter *)rtw_netdev_priv(ndev);
+ 	struct mlme_priv *pmlmepriv = &(padapter->mlmepriv);
+ 	struct sta_priv *pstapriv = &padapter->stapriv;
++#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3,19,0))
++	const u8 *mac = params->mac;
++#endif
+ 
+ 	DBG_871X("+"FUNC_NDEV_FMT"\n", FUNC_NDEV_ARG(ndev));
+ 
+@@ -4257,7 +4307,12 @@ static int	cfg80211_rtw_del_station(struct wiphy *wiphy, struct net_device *ndev
+ }
+ 
+ static int	cfg80211_rtw_change_station(struct wiphy *wiphy, struct net_device *ndev,
+-				  u8 *mac, struct station_parameters *params)
++#if (LINUX_VERSION_CODE < KERNEL_VERSION(3,16,0))
++				  u8 *mac,
++#else
++				  const u8 *mac,
++#endif
++				  struct station_parameters *params)
+ {
+ 	DBG_871X(FUNC_NDEV_FMT"\n", FUNC_NDEV_ARG(ndev));
+ 	
+@@ -4306,7 +4361,11 @@ static int	cfg80211_rtw_dump_station(struct wiphy *wiphy, struct net_device *nde
+ 	}
+ 	_rtw_memcpy(mac, psta->hwaddr, ETH_ALEN);
+ 	sinfo->filled = 0;
++#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4,0,0))
++	sinfo->filled |= BIT(NL80211_STA_INFO_SIGNAL);
++#else
+ 	sinfo->filled |= STATION_INFO_SIGNAL;
++#endif
+ 	sinfo->signal = psta->rssi;
+ 	
+ exit:
+diff --git a/os_dep/linux/ioctl_cfg80211.h b/os_dep/linux/ioctl_cfg80211.h
+index 3727922..b5022a7 100644
+--- a/os_dep/linux/ioctl_cfg80211.h
++++ b/os_dep/linux/ioctl_cfg80211.h
+@@ -146,8 +146,10 @@ bool rtw_cfg80211_pwr_mgmt(_adapter *adapter);
+ #define rtw_cfg80211_rx_mgmt(adapter, freq, sig_dbm, buf, len, gfp) cfg80211_rx_mgmt((adapter)->pnetdev, freq, sig_dbm, buf, len, gfp)
+ #elif (LINUX_VERSION_CODE < KERNEL_VERSION(3,12,0))
+ #define rtw_cfg80211_rx_mgmt(adapter, freq, sig_dbm, buf, len, gfp) cfg80211_rx_mgmt((adapter)->rtw_wdev, freq, sig_dbm, buf, len, gfp)
+-#else
++#elif (LINUX_VERSION_CODE < KERNEL_VERSION(3,18,0))
+ #define rtw_cfg80211_rx_mgmt(adapter, freq, sig_dbm, buf, len, gfp) cfg80211_rx_mgmt((adapter)->rtw_wdev, freq, sig_dbm, buf, len,0,gfp)
++#else
++#define rtw_cfg80211_rx_mgmt(adapter, freq, sig_dbm, buf, len, gfp) cfg80211_rx_mgmt((adapter)->rtw_wdev, freq, sig_dbm, buf, len, 0)
+ #endif
+ 
+ #if (LINUX_VERSION_CODE < KERNEL_VERSION(3,4,0))  && !defined(COMPAT_KERNEL_RELEASE)
+diff --git a/os_dep/linux/rtw_android.c b/os_dep/linux/rtw_android.c
+index 40ddf07..f7c496e 100644
+--- a/os_dep/linux/rtw_android.c
++++ b/os_dep/linux/rtw_android.c
+@@ -342,7 +342,11 @@ int rtw_android_cmdstr_to_num(char *cmdstr)
+ {
+ 	int cmd_num;
+ 	for(cmd_num=0 ; cmd_num<ANDROID_WIFI_CMD_MAX; cmd_num++)
++#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4,0,0))
++		if(0 == strncasecmp(cmdstr , android_wifi_cmd_str[cmd_num], strlen(android_wifi_cmd_str[cmd_num])) )
++#else
+ 		if(0 == strnicmp(cmdstr , android_wifi_cmd_str[cmd_num], strlen(android_wifi_cmd_str[cmd_num])) )
++#endif
+ 			break;
+ 
+ 	return cmd_num;
+diff --git a/os_dep/linux/rtw_cfgvendor.c b/os_dep/linux/rtw_cfgvendor.c
+index 2e249c9..783c674 100644
+--- a/os_dep/linux/rtw_cfgvendor.c
++++ b/os_dep/linux/rtw_cfgvendor.c
+@@ -139,8 +139,13 @@ int dbg_rtw_cfg80211_vendor_cmd_reply(struct sk_buff *skb
+ #define rtw_cfg80211_vendor_cmd_reply(skb) \
+ 		dbg_rtw_cfg80211_vendor_cmd_reply(skb, MSTAT_FUNC_CFG_VENDOR|MSTAT_TYPE_SKB, __FUNCTION__, __LINE__)
+ #else
++#if (LINUX_VERSION_CODE < KERNEL_VERSION(4,1,0))
+ #define rtw_cfg80211_vendor_event_alloc(wiphy, len, event_id, gfp) \
+ 	cfg80211_vendor_event_alloc(wiphy, len, event_id, gfp)
++#else
++#define rtw_cfg80211_vendor_event_alloc(wiphy, len, event_id, gfp) \
++	cfg80211_vendor_event_alloc(wiphy, NULL, len, event_id, gfp)
++#endif
+ 	
+ #define rtw_cfg80211_vendor_event(skb, gfp) \
+ 	cfg80211_vendor_event(skb, gfp)
+diff --git a/os_dep/osdep_service.c b/os_dep/osdep_service.c
+index dcef0e7..ca17ec9 100644
+--- a/os_dep/osdep_service.c
++++ b/os_dep/osdep_service.c
+@@ -804,7 +804,7 @@ void rtw_mfree2d(void *pbuf, int h, int w, int size)
+ 	rtw_mfree((u8 *)pbuf, h*sizeof(void*) + w*h*size);
+ }
+ 
+-void _rtw_memcpy(void* dst, void* src, u32 sz)
++void _rtw_memcpy(void* dst, const void* src, u32 sz)
+ {
+ 
+ #if defined (PLATFORM_LINUX)|| defined (PLATFORM_FREEBSD)
+@@ -821,7 +821,7 @@ void _rtw_memcpy(void* dst, void* src, u32 sz)
+ 
+ }
+ 
+-int	_rtw_memcmp(void *dst, void *src, u32 sz)
++int	_rtw_memcmp(const void *dst, const void *src, u32 sz)
+ {
+ 
+ #if defined (PLATFORM_LINUX)|| defined (PLATFORM_FREEBSD)
+-- 
+2.5.0
+
