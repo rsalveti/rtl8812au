@@ -1,0 +1,28 @@
+From: Ricardo Salveti de Araujo <rsalveti@rsalveti.net>
+Date: Mon, 19 Oct 2015 14:57:14 -0200
+Subject: Makefile: protecting wifi_regd
+
+Signed-off-by: Ricardo Salveti de Araujo <rsalveti@rsalveti.net>
+---
+ Makefile | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/Makefile b/Makefile
+index 449f0ce..ef737b9 100755
+--- a/Makefile
++++ b/Makefile
+@@ -148,10 +148,13 @@ _OS_INTFS_FILES :=	os_dep/osdep_service.o \
+ 			os_dep/linux/recv_linux.o \
+ 			os_dep/linux/ioctl_cfg80211.o \
+ 			os_dep/linux/rtw_cfgvendor.o \
+-			os_dep/linux/wifi_regd.o \
+ 			os_dep/linux/rtw_android.o \
+ 			os_dep/linux/rtw_proc.o
+ 
++ifeq ($(CONFIG_IOCTL_CFG80211), y)
++_OS_INTFS_FILES += os_dep/linux/wifi_regd.o
++endif
++
+ ifeq ($(CONFIG_SDIO_HCI), y)
+ _OS_INTFS_FILES += os_dep/linux/custom_gpio_linux.o
+ _OS_INTFS_FILES += os_dep/linux/$(HCI_NAME)_ops_linux.o

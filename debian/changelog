@@ -1,3 +1,10 @@
+rtl8812au (4.3.8.12175.20140902+dfsg-0ubuntu1) UNRELEASED; urgency=medium
+
+  * New dsfg orig tarball
+    - Removing files without a proper copyright/license
+
+ -- Ricardo Salveti de Araujo <rsalveti@rsalveti.net>  Mon, 19 Oct 2015 15:17:22 -0200
+
 rtl8812au (4.3.8.12175.20140902-0ubuntu1) wily; urgency=medium
 
   * Initial release (LP: #1501194)

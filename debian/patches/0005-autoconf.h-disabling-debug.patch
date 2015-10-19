@@ -8,7 +8,7 @@ Signed-off-by: Ricardo Salveti de Araujo <rsalveti@rsalveti.net>
  1 file changed, 4 insertions(+), 4 deletions(-)
 
 diff --git a/include/autoconf.h b/include/autoconf.h
-index d36a250..ff54aaa 100755
+index fac9eac..3c4bb77 100755
 --- a/include/autoconf.h
 +++ b/include/autoconf.h
 @@ -364,14 +364,14 @@
