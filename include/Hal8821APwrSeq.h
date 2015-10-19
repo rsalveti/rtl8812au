@@ -1,3 +1,6 @@
+/* Similar file also available at upstream linux under at
+   driver/staging/rtl8723au/include/Hal8723PwrSeq.h */
+
 #ifndef REALTEK_POWER_SEQUENCE_8821
 #define REALTEK_POWER_SEQUENCE_8821
 
