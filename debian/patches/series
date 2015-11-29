@@ -4,3 +4,4 @@
 0005-autoconf.h-disabling-debug.patch
 0006-Disabling-power-saving-for-better-performance.patch
 0006-Makefile-protecting-wifi_regd.patch
+0007-4.4-kernel-compatibility.patch

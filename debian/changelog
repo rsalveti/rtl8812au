@@ -1,3 +1,9 @@
+rtl8812au (4.3.8.12175.20140902+dfsg-0ubuntu2) xenial; urgency=low
+
+  * 4.4 kernel porting.  (LP: #1516013)
+
+ -- Andy Whitcroft <apw@ubuntu.com>  Fri, 27 Nov 2015 11:54:45 +0000
+
 rtl8812au (4.3.8.12175.20140902+dfsg-0ubuntu1) wily; urgency=medium
 
   * New dsfg orig tarball
