@@ -5,3 +5,4 @@
 0006-Disabling-power-saving-for-better-performance.patch
 0006-Makefile-protecting-wifi_regd.patch
 0007-4.4-kernel-compatibility.patch
+0008-rtw_android-making-compat-check-compatible-with-kern.patch

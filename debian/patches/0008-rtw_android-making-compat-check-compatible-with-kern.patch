@@ -1,0 +1,25 @@
+From: Ricardo Salveti <rsalveti@rsalveti.net>
+Date: Thu, 19 May 2016 16:20:28 -0300
+Subject: rtw_android: making compat check compatible with kernel 4.6
+
+Signed-off-by: Ricardo Salveti <rsalveti@rsalveti.net>
+---
+ os_dep/linux/rtw_android.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/os_dep/linux/rtw_android.c b/os_dep/linux/rtw_android.c
+index f7c496e..1cdf84d 100644
+--- a/os_dep/linux/rtw_android.c
++++ b/os_dep/linux/rtw_android.c
+@@ -574,7 +574,11 @@ int rtw_android_priv_cmd(struct net_device *net, struct ifreq *ifr, int cmd)
+ 		goto exit;
+ 	}
+ #ifdef CONFIG_COMPAT
++#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4,6,0))
++	if (in_compat_syscall()) {
++#else
+ 	if (is_compat_task()) {
++#endif
+ 		/* User space is 32-bit, use compat ioctl */
+ 		compat_android_wifi_priv_cmd compat_priv_cmd;
+ 

@@ -1,3 +1,9 @@
+rtl8812au (4.3.8.12175.20140902+dfsg-0ubuntu3) UNRELEASED; urgency=medium
+
+  * Porting to kernel 4.6.
+
+ -- Ricardo Salveti de Araujo <rsalveti@rsalveti.net>  Thu, 19 May 2016 16:36:14 -0300
+
 rtl8812au (4.3.8.12175.20140902+dfsg-0ubuntu2) xenial; urgency=low
 
   * 4.4 kernel porting.  (LP: #1516013)
