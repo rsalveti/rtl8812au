@@ -1,4 +1,4 @@
-rtl8812au (4.3.8.12175.20140902+dfsg-0ubuntu3) UNRELEASED; urgency=medium
+rtl8812au (4.3.8.12175.20140902+dfsg-0ubuntu3) yakkety; urgency=medium
 
   * Porting to kernel 4.6.
 
