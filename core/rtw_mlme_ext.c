@@ -21,7 +21,7 @@
 
 #include <drv_types.h>
 #ifdef CONFIG_IOCTL_CFG80211
-#include <rtw_wifi_regd.h>
+#include <rtw_wifi_regd_gpl.h>
 #endif //CONFIG_IOCTL_CFG80211
 
 

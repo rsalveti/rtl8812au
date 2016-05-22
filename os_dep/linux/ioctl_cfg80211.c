@@ -23,7 +23,7 @@
 
 #ifdef CONFIG_IOCTL_CFG80211
 
-#include <rtw_wifi_regd.h>
+#include <rtw_wifi_regd_gpl.h>
 
 #define RTW_MAX_MGMT_TX_CNT (8)
 

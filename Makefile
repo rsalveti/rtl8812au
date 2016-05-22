@@ -29,7 +29,7 @@ CONFIG_RTL8192D = n
 CONFIG_RTL8723A = n
 CONFIG_RTL8188E = n
 CONFIG_RTL8812A = y
-CONFIG_RTL8821A = n
+CONFIG_RTL8821A = y
 CONFIG_RTL8192E = n
 CONFIG_RTL8723B = n
 ######################### Interface ###########################
@@ -149,11 +149,8 @@ _OS_INTFS_FILES :=	os_dep/osdep_service.o \
 			os_dep/linux/ioctl_cfg80211.o \
 			os_dep/linux/rtw_cfgvendor.o \
 			os_dep/linux/rtw_android.o \
-			os_dep/linux/rtw_proc.o
-
-ifeq ($(CONFIG_IOCTL_CFG80211), y)
-_OS_INTFS_FILES += os_dep/linux/wifi_regd.o
-endif
+			os_dep/linux/rtw_proc.o \
+			os_dep/linux/wifi_regd_gpl.o
 
 ifeq ($(CONFIG_SDIO_HCI), y)
 _OS_INTFS_FILES += os_dep/linux/custom_gpio_linux.o
