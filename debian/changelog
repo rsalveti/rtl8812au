@@ -1,3 +1,10 @@
+rtl8812au (4.3.8.12175.20140902+dfsg-0ubuntu4) UNRELEASED; urgency=medium
+
+  * Enabling CFG80211 and RTL8821A
+  * Extending list of compatible vendors
+
+ -- Ricardo Salveti de Araujo <rsalveti@rsalveti.net>  Sun, 22 May 2016 21:21:36 -0300
+
 rtl8812au (4.3.8.12175.20140902+dfsg-0ubuntu3) yakkety; urgency=medium
 
   * Porting to kernel 4.6.

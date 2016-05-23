@@ -6,3 +6,6 @@
 0006-Makefile-protecting-wifi_regd.patch
 0007-4.4-kernel-compatibility.patch
 0008-rtw_android-making-compat-check-compatible-with-kern.patch
+0009-usb_intf-extending-compatible-vendor-list.patch
+0010-Enabling-CFG80211.patch
+0011-Enabling-RTL8821A.patch

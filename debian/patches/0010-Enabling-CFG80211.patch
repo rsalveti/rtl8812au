@@ -1,0 +1,21 @@
+From: Ricardo Salveti de Araujo <rsalveti@rsalveti.net>
+Date: Sun, 22 May 2016 21:57:31 -0300
+Subject: Enabling CFG80211
+
+Signed-off-by: Ricardo Salveti de Araujo <rsalveti@rsalveti.net>
+---
+ Makefile | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/Makefile b/Makefile
+index ef737b9..89f58d2 100755
+--- a/Makefile
++++ b/Makefile
+@@ -818,6 +818,7 @@ endif
+ 
+ ifeq ($(CONFIG_PLATFORM_I386_PC), y)
+ EXTRA_CFLAGS += -DCONFIG_LITTLE_ENDIAN
++EXTRA_CFLAGS += -DCONFIG_IOCTL_CFG80211 -DRTW_USE_CFG80211_STA_EVENT
+ SUBARCH := $(shell uname -m | sed -e s/i.86/i386/)
+ ARCH ?= $(SUBARCH)
+ CROSS_COMPILE ?=
